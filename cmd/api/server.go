@@ -37,7 +37,7 @@ func (app *application) run() error {
 		certmagic.DefaultACME.CA = certmagic.LetsEncryptProductionCA
 		certmagic.Default.Storage = &certmagic.FileStorage{Path: "/certs"}
 		certmagic.HTTPPort, certmagic.HTTPSPort = 80, 443
-		err = certmagic.HTTPS([]string{app.config.domainName}, app.routes())
+		err = certmagic.HTTPS([]string{app.config.domainName, "www" + app.config.domainName}, app.routes())
 	}
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
