@@ -3,11 +3,11 @@ module test/test
 go 1.19
 
 require (
+	github.com/alexedwards/flow v0.0.0-20220806114457-cf11be9e0e03
 	github.com/caddyserver/certmagic v0.17.2
 	github.com/fatih/color v1.14.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.7
 	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
 )

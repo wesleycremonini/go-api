@@ -18,12 +18,3 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-func (app *application) redirectToDomain(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.config.domainName != "localhost" {
-			http.Redirect(w, r, app.config.domainName, http.StatusMovedPermanently)
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}

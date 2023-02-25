@@ -3,21 +3,23 @@ package main
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/alexedwards/flow"
 )
 
 func (app *application) routes() http.Handler {
-	mux := httprouter.New()
+	mux := flow.New()
+
+	mux.Handle("/", http.RedirectHandler(app.config.domainName, http.StatusMovedPermanently))
 
 	mux.NotFound = http.HandlerFunc(notFound)
 	mux.MethodNotAllowed = http.HandlerFunc(methodNotAllowed)
 
-	mux.HandlerFunc(http.MethodGet, "/status", app.status)
+	mux.HandleFunc("/status", app.status, http.MethodGet)
 
 	{
-		mux.HandlerFunc(http.MethodGet, "/wtfs", app.HandleWtfIndex)
-		mux.HandlerFunc(http.MethodGet, "/wtfs/:id", app.HandleWtfFind)
+		mux.HandleFunc("/wtfs", app.HandleWtfIndex, http.MethodGet)
+		mux.HandleFunc("/wtfs/:id", app.HandleWtfFind, http.MethodGet)
 	}
 
-	return app.redirectToDomain(app.recoverPanic(mux))
+	return app.recoverPanic(mux)
 }

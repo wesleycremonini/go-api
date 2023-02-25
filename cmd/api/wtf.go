@@ -7,15 +7,14 @@ import (
 	"test/test/internal/request"
 	"test/test/internal/response"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/alexedwards/flow"
 )
 
 func (app *application) HandleWtfIndex(w http.ResponseWriter, r *http.Request) {
 	var filter domain.WtfFilter
 
-	params := httprouter.ParamsFromContext(r.Context())
-	idsString := params.ByName("ids")
-	wtfsString := params.ByName("wtfs")
+	idsString := flow.Param(r.Context(), "ids")
+	wtfsString := flow.Param(r.Context(), "wtfs")
 
 	var idsInput []int
 	if idsString != "" {
@@ -23,14 +22,13 @@ func (app *application) HandleWtfIndex(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}
 	}
-	
+
 	var wtfsInput []string
 	if wtfsString != "" {
 		if err := json.Unmarshal([]byte(wtfsString), &wtfsString); err != nil {
 			panic(err)
 		}
 	}
-
 
 	filter = domain.WtfFilter{
 		IDs:  idsInput,
