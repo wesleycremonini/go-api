@@ -1,63 +1,49 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
+
+	"github.com/caddyserver/certmagic"
 )
 
 const (
 	defaultIdleTimeout  = time.Minute
 	defaultReadTimeout  = 10 * time.Second
 	defaultWriteTimeout = 30 * time.Second
-
-	defaultShutdownPeriod = 20 * time.Second
 )
 
-func (app *application) serveHTTP() error {
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.httpPort),
-		Handler:      app.routes(),
-		ErrorLog:     log.New(logger, "", 0),
-		IdleTimeout:  defaultIdleTimeout,
-		ReadTimeout:  defaultReadTimeout,
-		WriteTimeout: defaultWriteTimeout,
+func (app *application) run() error {
+	var err error
+	if app.config.domainName == "localhost" {
+		srv := &http.Server{
+			Addr:         ":80",
+			Handler:      app.routes(),
+			ErrorLog:     log.New(logger, "", 0),
+			IdleTimeout:  defaultIdleTimeout,
+			ReadTimeout:  defaultReadTimeout,
+			WriteTimeout: defaultWriteTimeout,
+		}
+		logger.Info("starting dev server")
+		err = srv.ListenAndServe()
+	} else {
+		fmt.Println("starting certmagic server")
+		certmagic.DefaultACME.Agreed = true
+		certmagic.DefaultACME.Email = app.config.email
+		certmagic.DefaultACME.CA = certmagic.LetsEncryptProductionCA
+		certmagic.Default.Storage = &certmagic.FileStorage{Path: "/certs"}
+		certmagic.HTTPPort, certmagic.HTTPSPort = 80, 443
+		err = certmagic.HTTPS([]string{app.config.domainName}, app.routes())
 	}
-
-	shutdownErrorChan := make(chan error)
-
-	go func() {
-		quitChan := make(chan os.Signal, 1)
-		signal.Notify(quitChan, syscall.SIGINT, syscall.SIGTERM)
-		<-quitChan
-
-		ctx, cancel := context.WithTimeout(context.Background(), defaultShutdownPeriod)
-		defer cancel()
-
-		shutdownErrorChan <- srv.Shutdown(ctx)
-	}()
-
-	logger.Info("starting server on %s", srv.Addr)
-
-	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
 
-	err = <-shutdownErrorChan
-	if err != nil {
-		return err
-	}
-
-	logger.Info("stopped server on %s", srv.Addr)
-
+	logger.Info("server stopped")
 	app.wg.Wait()
 	return nil
 }

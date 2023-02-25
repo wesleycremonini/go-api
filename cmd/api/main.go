@@ -22,11 +22,10 @@ func main() {
 }
 
 type config struct {
-	baseURL  string
-	httpPort int
-	db       struct {
+	domainName string
+	email      string
+	db         struct {
 		dsn         string
-		automigrate bool
 	}
 }
 
@@ -42,7 +41,7 @@ func run() error {
 	var cfg config
 	parseFlags(&cfg)
 
-	db, err := database.New(cfg.db.dsn, cfg.db.automigrate)
+	db, err := database.New(cfg.db.dsn)
 	if err != nil {
 		return err
 	}
@@ -55,14 +54,13 @@ func run() error {
 		WtfService: &database.WtfService{DB: db.DB},
 	}
 
-	return app.serveHTTP()
+	return app.run()
 }
 
 func parseFlags(cfg *config) {
-	flag.StringVar(&cfg.baseURL, "base-url", "http://localhost:4444", "base URL for the application")
-	flag.IntVar(&cfg.httpPort, "http-port", 4444, "port to listen on for HTTP requests")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "dev:dev@localhost:5432/dev?sslmode=disable", "postgreSQL DSN")
-	flag.BoolVar(&cfg.db.automigrate, "db-automigrate", true, "run migrations on startup")
+	flag.StringVar(&cfg.domainName, "domain-name", "localhost", "base URL for the application")
+	flag.StringVar(&cfg.email, "email", "example@email.com", "application TLS certificate e-mail")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "dev:dev@localhost:5432/go_db?sslmode=disable", "postgreSQL DSN")
 
 	flag.Parse()
 }

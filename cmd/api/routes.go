@@ -8,7 +8,7 @@ import (
 
 func (app *application) routes() http.Handler {
 	mux := httprouter.New()
-
+	
 	mux.NotFound = http.HandlerFunc(notFound)
 	mux.MethodNotAllowed = http.HandlerFunc(methodNotAllowed)
 
