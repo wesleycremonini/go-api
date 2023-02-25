@@ -8,7 +8,7 @@ import (
 
 func (app *application) routes() http.Handler {
 	mux := httprouter.New()
-	
+
 	mux.NotFound = http.HandlerFunc(notFound)
 	mux.MethodNotAllowed = http.HandlerFunc(methodNotAllowed)
 
@@ -19,5 +19,5 @@ func (app *application) routes() http.Handler {
 		mux.HandlerFunc(http.MethodGet, "/wtfs/:id", app.HandleWtfFind)
 	}
 
-	return app.recoverPanic(mux)
+	return app.redirectToDomain(app.recoverPanic(mux))
 }
