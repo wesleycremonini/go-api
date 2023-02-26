@@ -1,5 +1,6 @@
-206.81.30.19 {
-	respond "OK" 200 {
+http://206.81.30.19 {
+	respond 200 {
+		body "OK"
 		close
 	}
 }
