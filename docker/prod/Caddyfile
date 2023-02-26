@@ -1,4 +1,4 @@
-http://206.81.30.19 {
+https://, http:// {
 	respond 200 {
 		body "OK"
 		close
