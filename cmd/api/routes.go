@@ -9,8 +9,6 @@ import (
 func (app *application) routes() http.Handler {
 	mux := flow.New()
 
-	mux.Handle("/", http.RedirectHandler(app.config.domainName, http.StatusMovedPermanently))
-
 	mux.NotFound = http.HandlerFunc(notFound)
 	mux.MethodNotAllowed = http.HandlerFunc(methodNotAllowed)
 

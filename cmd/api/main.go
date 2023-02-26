@@ -22,10 +22,8 @@ func main() {
 }
 
 type config struct {
-	domainName string
-	email      string
 	db         struct {
-		dsn         string
+		dsn string
 	}
 }
 
@@ -58,9 +56,7 @@ func run() error {
 }
 
 func parseFlags(cfg *config) {
-	flag.StringVar(&cfg.domainName, "domain-name", "localhost", "base URL for the application")
-	flag.StringVar(&cfg.email, "email", "example@email.com", "application TLS certificate e-mail")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "dev:dev@localhost:5432/go_db?sslmode=disable", "postgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "dev:dev@db:5432/db?sslmode=disable", "postgreSQL DSN")
 
 	flag.Parse()
 }

@@ -1,0 +1,56 @@
+version: '3.9'
+
+services:   
+  app1:
+    hostname: app1
+    container_name: app1
+    image: cosmtrek/air
+    restart: unless-stopped
+    command: ["-c", "/app/docker/dev/.air.toml"]
+    working_dir: /app
+    ports:
+      - 80:80
+    volumes:
+      - ../../:/app
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  db:
+    container_name: db
+    hostname: db
+    restart: unless-stopped
+    image: postgres:alpine
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready --dbname db --username dev"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    container_name: redis
+    hostname: redis
+    restart: unless-stopped
+    image: 'redis:alpine'
+    volumes:
+      - './data/redis:/data'
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis:

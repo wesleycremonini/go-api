@@ -1,0 +1,7 @@
+http://206.81.30.19/ {
+	respond "OK"
+}
+
+wesleycremonini.com, www.wesleycremonini.com {
+	reverse_proxy app:80
+}

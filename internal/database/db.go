@@ -29,14 +29,20 @@ func New(dsn string) (*DB, error) {
 	db.SetConnMaxIdleTime(5 * time.Minute)
 	db.SetConnMaxLifetime(2 * time.Hour)
 
+	autoMigrate(dsn)
+
+	return &DB{db}, nil
+}
+
+func autoMigrate(dsn string) error {
 	iofsDriver, err := iofs.New(assets.EmbeddedFiles, "migrations")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	migrator, err := migrate.NewWithSourceInstance("iofs", iofsDriver, "postgres://"+dsn)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = migrator.Up()
@@ -44,8 +50,8 @@ func New(dsn string) (*DB, error) {
 	case errors.Is(err, migrate.ErrNoChange):
 		break
 	case err != nil:
-		return nil, err
+		return err
 	}
 
-	return &DB{db}, nil
+	return nil
 }
