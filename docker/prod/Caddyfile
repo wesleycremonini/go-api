@@ -1,5 +1,7 @@
-http://206.81.30.19/ {
-	respond "OK"
+http://206.81.30.19 {
+	respond "OK" 200 {
+		close
+	}
 }
 
 wesleycremonini.com, www.wesleycremonini.com {
